@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './App.css';
+import './App.scss';
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
 import {
@@ -58,26 +58,40 @@ const App = () => {
   };
 
   return (
-    <>
+    <main>
       <HeaderComponent currency={currencyRate} />
       <h1>Currency Converter</h1>
       <h2>Test Task</h2>
-      <CurrencyComponent
-        selectedCurrency={startCurrency}
-        currencyType={currencyType}
-        onChangeCurrency={(event) => setStartCurrency(event.target.value)}
-        amount={startAmount}
-        onChangeAmount={handleFromAmountChange}
-      />
-      <button>Switch</button>
-      <CurrencyComponent
-        selectedCurrency={endCurrency}
-        currencyType={currencyType}
-        onChangeCurrency={(event) => setEndCurrency(event.target.value)}
-        amount={endAmount}
-        onChangeAmount={handleToAmountChange}
-      />
-    </>
+      <div className='currency-components'>
+        <CurrencyComponent
+          selectedCurrency={startCurrency}
+          currencyType={currencyType}
+          onChangeCurrency={(event) => setStartCurrency(event.target.value)}
+          amount={startAmount}
+          onChangeAmount={handleFromAmountChange}
+        />
+        <button
+          onClick={() => {
+            setStartCurrency(endCurrency);
+            setEndCurrency(startCurrency);
+          }}
+        >
+          <img
+            src={process.env.PUBLIC_URL + '/image/switch.png'}
+            alt='switch'
+            style={{height: 25}}
+          />
+        </button>
+        <CurrencyComponent
+          selectedCurrency={endCurrency}
+          currencyType={currencyType}
+          onChangeCurrency={(event) => setEndCurrency(event.target.value)}
+          amount={endAmount}
+          onChangeAmount={handleToAmountChange}
+        />
+      </div>
+      <p>Date: {new Date().toLocaleString()}</p>
+    </main>
   );
 };
 

@@ -1,0 +1,25 @@
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  .currency-components {
+    max-width: 930px;
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 20px 0 rgb(179 187 198 / 45%);
+    padding: 0 15px;
+  }
+}
+
+button {
+  height: 3em;
+  width: 5em;
+  border: none;
+  background: #ffffff;
+  cursor: pointer;
+}
