@@ -5,7 +5,7 @@ import './App.scss';
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
 
-import getCurrentCurrencyRate from './API';
+import {getCurrentCurrencyRate, BASE_URL} from './API';
 import convertCurrency from './convertFunction';
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
 
   useEffect(() => {
-    getCurrentCurrencyRate()
+    getCurrentCurrencyRate(BASE_URL)
       .then((response) =>
         setCurrencyRate(
           response.reduce(
