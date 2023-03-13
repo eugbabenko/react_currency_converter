@@ -1,44 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+
 import './App.scss';
+
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
-import {
-  getCurrentCurrencyRate,
-  getCurrentCurrencyISOCode,
-  privat,
-} from './API';
 
-const App = () => {
-  const [currencyRate, setCurrencyRate] = useState(privat);
-  const rates = {
-    UAH: 1,
-    EUR: 38.7426,
-    USD: 36.5686,
-    PLN: 8.2723,
-    GBP: 43.8713,
-    SEK: 3.4016,
-  };
-  const [currencyType, setCurrencyType] = useState([...Object.keys(rates)]);
+import { privat, rates } from './API';
+
+function App() {
   const [startCurrency, setStartCurrency] = useState();
   const [endCurrency, setEndCurrency] = useState();
   const [exchangeRate, setExchangeRate] = useState();
   const [amount, setAmount] = useState(1);
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
 
-  const [startAmount, endAmount] = amountInStartCurrency
-    ? [amount, parseFloat(amount * exchangeRate).toFixed(5)]
-    : [parseFloat(amount / exchangeRate).toFixed(5), amount];
+  const currencyRate = useMemo(() => privat, [])
+  const currencyType = useMemo(() => [...Object.keys(rates)], []);
 
-  const convertCurrency = (fromCurrency, toCurrency, rates) => {
-    const fromRate = rates[fromCurrency];
-    const toRate = rates[toCurrency];
+  const convertCurrency = (fromCurrency, toCurrency, ratesList) => {
+    const fromRate = ratesList[fromCurrency];
+    const toRate = ratesList[toCurrency];
     const value = 1 / (toRate / fromRate);
     return value;
   };
 
   useEffect(() => {
-    const firstCurrency = currencyType[0];
-    setStartCurrency(firstCurrency);
+    setStartCurrency(currencyType[0]);
     setEndCurrency(currencyType[1]);
     setExchangeRate(convertCurrency(startCurrency, endCurrency, rates));
   }, []);
@@ -46,6 +33,9 @@ const App = () => {
   useEffect(() => {
     setExchangeRate(convertCurrency(startCurrency, endCurrency, rates));
   }, [startCurrency, endCurrency]);
+  const [startAmount, endAmount] = amountInStartCurrency
+    ? [amount, parseFloat(amount * exchangeRate).toFixed(2)]
+    : [parseFloat(amount / exchangeRate).toFixed(2), amount];
 
   const handleFromAmountChange = (e) => {
     setAmount(e.target.value);
@@ -62,7 +52,7 @@ const App = () => {
       <HeaderComponent currency={currencyRate} />
       <h1>Currency Converter</h1>
       <h2>Test Task</h2>
-      <div className='currency-components'>
+      <div className="currency-components">
         <CurrencyComponent
           selectedCurrency={startCurrency}
           currencyType={currencyType}
@@ -71,15 +61,16 @@ const App = () => {
           onChangeAmount={handleFromAmountChange}
         />
         <button
+          type="submit"
           onClick={() => {
             setStartCurrency(endCurrency);
             setEndCurrency(startCurrency);
           }}
         >
           <img
-            src={process.env.PUBLIC_URL + '/image/switch.png'}
-            alt='switch'
-            style={{height: 25}}
+            src={`${process.env.PUBLIC_URL}/image/switch.png`}
+            alt="switch"
+            style={{ height: 25 }}
           />
         </button>
         <CurrencyComponent
@@ -93,6 +84,6 @@ const App = () => {
       <p>Date: {new Date().toLocaleString()}</p>
     </main>
   );
-};
+}
 
 export default App;

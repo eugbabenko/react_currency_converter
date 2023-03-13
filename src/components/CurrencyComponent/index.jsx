@@ -1,6 +1,6 @@
 import './styles.scss';
 
-const CurrencyComponent = (props) => {
+function CurrencyComponent(props) {
   const {
     currencyType,
     selectedCurrency,
@@ -21,6 +21,6 @@ const CurrencyComponent = (props) => {
       <input type='numeric' value={amount} onChange={onChangeAmount} />
     </div>
   );
-};
+}
 
 export default CurrencyComponent;

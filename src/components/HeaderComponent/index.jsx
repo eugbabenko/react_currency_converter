@@ -1,6 +1,6 @@
 import './styles.scss';
 
-const HeaderComponent = ({ currency }) => {
+function HeaderComponent({ currency }) {
   const [ EUR, USD ] = currency;
  
   return (
@@ -9,6 +9,6 @@ const HeaderComponent = ({ currency }) => {
       <div>1 EUR = {EUR.buy} UAH </div>
     </header>
   );
-};
+}
 
 export default HeaderComponent;

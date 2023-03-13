@@ -1,5 +1,3 @@
-export const API_URL = 'https://api.monobank.ua/bank/currency';
-
 // export const getCurrentCurrencyRate = async () => {
 //   const response = await fetch('https://api.monobank.ua/bank/currency');
 //   const data = await response.json();
@@ -13,6 +11,15 @@ export const API_URL = 'https://api.monobank.ua/bank/currency';
 //   const data = await response.json();
 //   return data;
 // };
+
+export const rates = {
+  UAH: 1,
+  EUR: 38.7426,
+  USD: 36.5686,
+  PLN: 8.2723,
+  GBP: 43.8713,
+  SEK: 3.4016,
+};
 
 export const privat = [
   {
@@ -458,8 +465,3 @@ export const bank = [
     exchangedate: '13.03.2023',
   },
 ];
-
-
-
-
-
