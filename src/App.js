@@ -1,38 +1,56 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 import './App.scss';
 
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
 
-import { privat, rates } from './API';
+import getCurrentCurrencyRate from './API';
+import convertCurrency from './convertFunction';
 
 function App() {
   const [startCurrency, setStartCurrency] = useState();
+  const [currencyRate, setCurrencyRate] = useState([]);
+  const [currencyType, setCurrencyType] = useState([]);
   const [endCurrency, setEndCurrency] = useState();
   const [exchangeRate, setExchangeRate] = useState();
   const [amount, setAmount] = useState(1);
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
 
-  const currencyRate = useMemo(() => privat, [])
-  const currencyType = useMemo(() => [...Object.keys(rates)], []);
-
-  const convertCurrency = (fromCurrency, toCurrency, ratesList) => {
-    const fromRate = ratesList[fromCurrency];
-    const toRate = ratesList[toCurrency];
-    const value = 1 / (toRate / fromRate);
-    return value;
-  };
-
   useEffect(() => {
-    setStartCurrency(currencyType[0]);
-    setEndCurrency(currencyType[1]);
-    setExchangeRate(convertCurrency(startCurrency, endCurrency, rates));
+    getCurrentCurrencyRate()
+      .then((response) =>
+        setCurrencyRate(
+          response.reduce(
+            (acc, curr) => {
+              if (!curr.cc.startsWith('X')) {
+                return { ...acc, [curr.cc]: curr.rate };
+              }
+              return acc;
+            },
+            { UAH: 1 }
+          )
+        )
+      )
+      .catch((error) => {
+        alert('Error fetching currency rates:', error);
+      });
   }, []);
 
   useEffect(() => {
-    setExchangeRate(convertCurrency(startCurrency, endCurrency, rates));
+    const firstCurrencyType = Object.keys(currencyRate);
+    setCurrencyType(firstCurrencyType);
+    setStartCurrency(firstCurrencyType[0]);
+    setEndCurrency(firstCurrencyType[1]);
+    setExchangeRate(
+      convertCurrency(firstCurrencyType[0], firstCurrencyType[1], currencyRate)
+    );
+  }, [currencyRate]);
+
+  useEffect(() => {
+    setExchangeRate(convertCurrency(startCurrency, endCurrency, currencyRate));
   }, [startCurrency, endCurrency]);
+
   const [startAmount, endAmount] = amountInStartCurrency
     ? [amount, parseFloat(amount * exchangeRate).toFixed(2)]
     : [parseFloat(amount / exchangeRate).toFixed(2), amount];
@@ -51,6 +69,9 @@ function App() {
     <main>
       <HeaderComponent currency={currencyRate} />
       <h1>Currency Converter</h1>
+      <p className="text-exchange-rates">
+        (exchange rates according of the National Bank of Ukraine)
+      </p>
       <h2>Test Task</h2>
       <div className="currency-components">
         <CurrencyComponent
@@ -81,7 +102,7 @@ function App() {
           onChangeAmount={handleToAmountChange}
         />
       </div>
-      <p>Date: {new Date().toLocaleString()}</p>
+      <p>Date: {new Date().toLocaleString().split(',')[0]}</p>
     </main>
   );
 }

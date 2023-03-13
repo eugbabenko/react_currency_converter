@@ -21,6 +21,8 @@
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/react-in-jsx-scope": "off",
-    "react/prop-types": "Off"
+    "react/prop-types": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "no-alert": "off"
   }
 }

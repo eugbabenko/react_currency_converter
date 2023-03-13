@@ -3,6 +3,11 @@ main {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  
+  .text-exchange-rates {
+    margin: 0;
+    padding: 0;
+  }
 
   .currency-components {
     max-width: 930px;
