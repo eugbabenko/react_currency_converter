@@ -1,12 +1,12 @@
 import './styles.scss';
 
 const HeaderComponent = ({ currency }) => {
-  const { EUR, USD, PLN } = currency.rates;
+  const [ EUR, USD ] = currency;
+ 
   return (
     <header>
-      <div>1 USD = {USD} UAH </div>
-      <div>1 EUR = {EUR} UAH </div>
-      <div>1 PLN = {PLN} UAH </div>
+      <div>1 USD = {USD.buy} UAH </div>
+      <div>1 EUR = {EUR.buy} UAH </div>
     </header>
   );
 };
