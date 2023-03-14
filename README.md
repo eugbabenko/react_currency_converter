@@ -5,7 +5,7 @@ Features
 
 The Currency Converter project offers the following features:
 
-    Currency conversion for over 30 currencies.
+    Currency conversion for over 50 currencies.
     Real-time exchange rate updates.
     Ability to select the base currency and the target currency.
     Display of the exchange rate and the converted amount.

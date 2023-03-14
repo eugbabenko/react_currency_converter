@@ -7,8 +7,12 @@ function HeaderComponent({ currency }) {
 
   return (
     <header>
-      <div>1 USD = {currencyRates.USD} UAH </div>
-      <div>1 EUR = {currencyRates.EUR} UAH </div>
+      <div>
+        <span className="fi fi-us" /> 1 USD = {currencyRates.USD} UAH
+      </div>
+      <div>
+        <span className="fi fi-eu" /> 1 EUR = {currencyRates.EUR} UAH
+      </div>
     </header>
   );
 }
