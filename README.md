@@ -14,8 +14,8 @@ Getting Started
 
 To run the Currency Converter project locally, follow these steps:
 
-    Clone this repository using git clone https://github.com/your-username/currency-converter.git
-    Navigate to the project directory: cd currency-converter
+    Clone this repository using git clone https://github.com/eugbabenko/react_currency_converter.git
+    Navigate to the project directory: cd react_currency_converter
     Install the required dependencies: yarn install
     Run the application: yarn start
     Open http://localhost:3000 to view the application in the browser.
