@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
+
 import './styles.scss';
 
 function CurrencyComponent(props) {
   const {
-    currencyType,
+    currencyRate,
     selectedCurrency,
     onChangeCurrency,
     amount,
@@ -11,14 +13,21 @@ function CurrencyComponent(props) {
 
   return (
     <div className="currency-component">
+      <p className="currency-name">
+        {useMemo(
+          () =>
+            currencyRate.find(({ type }) => type === selectedCurrency)?.name,
+          [selectedCurrency]
+        )}
+      </p>
       <select value={selectedCurrency} onChange={onChangeCurrency}>
-        {currencyType.map((option) => (
-          <option key={option} value={option}>
-            {option}
+        {currencyRate.map(({ type }) => (
+          <option key={type} value={type}>
+            {type}
           </option>
         ))}
       </select>
-      <input type="numeric" value={amount} onChange={onChangeAmount} />
+      <input type="number" value={amount} onChange={onChangeAmount} />
     </div>
   );
 }

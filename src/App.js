@@ -12,7 +12,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [startCurrency, setStartCurrency] = useState();
   const [currencyRate, setCurrencyRate] = useState([]);
-  const [currencyType, setCurrencyType] = useState([]);
   const [endCurrency, setEndCurrency] = useState();
   const [exchangeRate, setExchangeRate] = useState();
   const [amount, setAmount] = useState(1);
@@ -25,17 +24,17 @@ function App() {
         const updatedCurrencyRate = response.reduce(
           (acc, curr) => {
             if (!curr.cc.startsWith('X')) {
-              return { ...acc, [curr.cc]: curr.rate };
+              acc.push({ type: curr.cc, rate: curr.rate, name: curr.txt });
             }
             return acc;
           },
-          { UAH: 1 }
+          [{ type: 'UAH', rate: 1, name: 'Українська гривня' }]
         );
-        const initCurrencyType = Object.keys(updatedCurrencyRate);
         setCurrencyRate(updatedCurrencyRate);
-        setCurrencyType(initCurrencyType);
-        setStartCurrency(initCurrencyType[0]);
-        setEndCurrency(initCurrencyType.find((currency) => currency === 'USD'));
+        setStartCurrency(updatedCurrencyRate[0].type);
+        setEndCurrency(
+          updatedCurrencyRate.find((currency) => currency.type === 'USD').type
+        );
         setIsLoading(false);
       })
       .catch((error) => {
@@ -81,7 +80,7 @@ function App() {
         <div className="currency-components">
           <CurrencyComponent
             selectedCurrency={startCurrency}
-            currencyType={currencyType}
+            currencyRate={currencyRate}
             onChangeCurrency={(event) => setStartCurrency(event.target.value)}
             amount={startAmount}
             onChangeAmount={handleStartAmountChange}
@@ -101,7 +100,7 @@ function App() {
           </button>
           <CurrencyComponent
             selectedCurrency={endCurrency}
-            currencyType={currencyType}
+            currencyRate={currencyRate}
             onChangeCurrency={(event) => setEndCurrency(event.target.value)}
             amount={endAmount}
             onChangeAmount={handleEndAmountChange}

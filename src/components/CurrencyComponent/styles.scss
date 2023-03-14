@@ -6,7 +6,7 @@
   flex-direction: column;
   flex: 1;
 
-  input[type='numeric'] {
+  input[type='number'] {
     box-sizing: border-box;
     background: rgba(255, 255, 255, 0.1);
     border: none;
@@ -38,5 +38,12 @@
     border-radius: 5px;
     margin-bottom: 30px;
     margin-top: 30px;
+  }
+
+  .currency-name {
+    margin: 15px auto 0;
+    text-align: center;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
   }
 }
