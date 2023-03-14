@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import './App.scss';
 
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
 
-import {getCurrentCurrencyRate, BASE_URL} from './API';
+import { getCurrentCurrencyRate, BASE_URL } from './API';
 import convertCurrency from './convertFunction';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [startCurrency, setStartCurrency] = useState();
   const [currencyRate, setCurrencyRate] = useState([]);
   const [currencyType, setCurrencyType] = useState([]);
@@ -18,34 +19,29 @@ function App() {
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     getCurrentCurrencyRate(BASE_URL)
-      .then((response) =>
-        setCurrencyRate(
-          response.reduce(
-            (acc, curr) => {
-              if (!curr.cc.startsWith('X')) {
-                return { ...acc, [curr.cc]: curr.rate };
-              }
-              return acc;
-            },
-            { UAH: 1 }
-          )
-        )
-      )
+      .then((response) => {
+        const updatedCurrencyRate = response.reduce(
+          (acc, curr) => {
+            if (!curr.cc.startsWith('X')) {
+              return { ...acc, [curr.cc]: curr.rate };
+            }
+            return acc;
+          },
+          { UAH: 1 }
+        );
+        const initCurrencyType = Object.keys(updatedCurrencyRate);
+        setCurrencyRate(updatedCurrencyRate);
+        setCurrencyType(initCurrencyType);
+        setStartCurrency(initCurrencyType[0]);
+        setEndCurrency(initCurrencyType.find((currency) => currency === 'USD'));
+        setIsLoading(false);
+      })
       .catch((error) => {
         alert('Error fetching currency rates:', error);
       });
   }, []);
-
-  useEffect(() => {
-    const firstCurrencyType = Object.keys(currencyRate);
-    setCurrencyType(firstCurrencyType);
-    setStartCurrency(firstCurrencyType[0]);
-    setEndCurrency(firstCurrencyType[1]);
-    setExchangeRate(
-      convertCurrency(firstCurrencyType[0], firstCurrencyType[1], currencyRate)
-    );
-  }, [currencyRate]);
 
   useEffect(() => {
     setExchangeRate(convertCurrency(startCurrency, endCurrency, currencyRate));
@@ -55,55 +51,67 @@ function App() {
     ? [amount, parseFloat(amount * exchangeRate).toFixed(2)]
     : [parseFloat(amount / exchangeRate).toFixed(2), amount];
 
-  const handleFromAmountChange = (e) => {
+  const handleStartAmountChange = useCallback((e) => {
     setAmount(e.target.value);
     setAmountInStartCurrency(true);
-  };
+  }, []);
 
-  const handleToAmountChange = (e) => {
+  const handleEndAmountChange = useCallback((e) => {
     setAmount(e.target.value);
     setAmountInStartCurrency(false);
-  };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="loader">
+        <p>Loading</p>
+      </div>
+    );
+  }
 
   return (
-    <main>
+    <>
       <HeaderComponent currency={currencyRate} />
-      <h1>Currency Converter</h1>
-      <p className="text-exchange-rates">
-        (exchange rates according of the National Bank of Ukraine)
-      </p>
-      <h2>Test Task</h2>
-      <div className="currency-components">
-        <CurrencyComponent
-          selectedCurrency={startCurrency}
-          currencyType={currencyType}
-          onChangeCurrency={(event) => setStartCurrency(event.target.value)}
-          amount={startAmount}
-          onChangeAmount={handleFromAmountChange}
-        />
-        <button
-          type="submit"
-          onClick={() => {
-            setStartCurrency(endCurrency);
-            setEndCurrency(startCurrency);
-          }}
-        >
-          <img
-            src={`${process.env.PUBLIC_URL}/image/switch.png`}
-            alt="switch"
-            style={{ height: 25 }}
+      <main>
+        <h1>Currency Converter</h1>
+        <p className="text-exchange-rates">
+          (exchange rates according of the National Bank of Ukraine)
+        </p>
+        <h2>Test Task</h2>
+        <div className="currency-components">
+          <CurrencyComponent
+            selectedCurrency={startCurrency}
+            currencyType={currencyType}
+            onChangeCurrency={(event) => setStartCurrency(event.target.value)}
+            amount={startAmount}
+            onChangeAmount={handleStartAmountChange}
           />
-        </button>
-        <CurrencyComponent
-          selectedCurrency={endCurrency}
-          currencyType={currencyType}
-          onChangeCurrency={(event) => setEndCurrency(event.target.value)}
-          amount={endAmount}
-          onChangeAmount={handleToAmountChange}
-        />
-      </div>
-      <p>Date: {new Date().toLocaleString().split(',')[0]}</p>
-    </main>
+          <button
+            type="submit"
+            onClick={() => {
+              setStartCurrency(endCurrency);
+              setEndCurrency(startCurrency);
+            }}
+          >
+            <img
+              src={`${process.env.PUBLIC_URL}/image/switch.png`}
+              alt="switch"
+              style={{ height: 25 }}
+            />
+          </button>
+          <CurrencyComponent
+            selectedCurrency={endCurrency}
+            currencyType={currencyType}
+            onChangeCurrency={(event) => setEndCurrency(event.target.value)}
+            amount={endAmount}
+            onChangeAmount={handleEndAmountChange}
+          />
+        </div>
+      </main>
+      <footer>
+        <p>Date: {new Date().toLocaleString().split(',')[0]}</p>
+      </footer>
+    </>
   );
 }
 
