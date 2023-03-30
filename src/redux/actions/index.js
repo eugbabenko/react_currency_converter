@@ -1,7 +1,8 @@
-import getCurrentCurrencyRate from '../API';
+import getCurrentCurrencyRate from '../../API';
+import { GET_CURRENCY_REDUCER } from '../../constants';
 
 const fetchCurrencyRate = () => async (dispatch) => {
-  dispatch({ type: 'FETCH_CURRENCY_RATE_REQUEST' });
+  dispatch({ type: GET_CURRENCY_REDUCER.FETCH_CURRENCY_RATE_REQUEST });
   try {
     const response = await getCurrentCurrencyRate();
     const updatedCurrencyRate = response.reduce(
@@ -14,11 +15,14 @@ const fetchCurrencyRate = () => async (dispatch) => {
       [{ type: 'UAH', rate: 1, name: 'Українська гривня' }]
     );
     dispatch({
-      type: 'FETCH_CURRENCY_RATE_SUCCESS',
+      type: GET_CURRENCY_REDUCER.FETCH_CURRENCY_RATE_SUCCESS,
       payload: updatedCurrencyRate,
     });
   } catch (error) {
-    dispatch({ type: 'FETCH_CURRENCY_RATE_FAILURE', payload: error });
+    dispatch({
+      type: GET_CURRENCY_REDUCER.FETCH_CURRENCY_RATE_FAILURE,
+      payload: error,
+    });
   }
 };
 

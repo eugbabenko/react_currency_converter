@@ -1,5 +1,4 @@
-const BASE_API_URL =
-  'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json';
+import { BASE_API_URL } from "../constants";
 
 const getCurrentCurrencyRate = async () => {
   const response = await fetch(BASE_API_URL);
