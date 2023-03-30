@@ -34,7 +34,12 @@ function CurrencyComponent(props) {
           </option>
         ))}
       </select>
-      <input type="number" value={amount} onChange={onChangeAmount} />
+      <input
+        type="number"
+        pattern="[0-9]*"
+        value={amount}
+        onChange={onChangeAmount}
+      />
     </div>
   );
 }
