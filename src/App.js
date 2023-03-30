@@ -3,30 +3,40 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import './App.scss';
 
-import CurrencyComponent from './components/CurrencyComponent';
-import HeaderComponent from './components/HeaderComponent';
+import CurrencyComponent from './components/Currency';
+import HeaderComponent from './components/Header';
+import Error from './components/Error';
+import ReverseButton from './components/ReverseButton';
 
-import fetchCurrencyRate from './actions';
-import convertCurrency from './convertFunction';
+import fetchCurrencyRate from './store/actions';
+import { CHANGE_END_CURRENCY, CHANGE_START_CURRENCY, REVERSE_CURRENCY_SELECTION } from './store/constants';
+
+const convertCurrency = (fromCurrency, toCurrency, ratesList) => {
+  const findCurrency = (currency, list) =>
+    list.find(({ type }) => type === currency)?.rate;
+
+  const fromRate = findCurrency(fromCurrency, ratesList);
+  const toRate = findCurrency(toCurrency, ratesList);
+  const value = 1 / (toRate / fromRate);
+  return value;
+};
 
 function App() {
+  const dispatch = useDispatch();
+  const { currencyRate, isLoading, error } = useSelector(
+    (state) => state.currency
+  );
+  const { startCurrency, endCurrency } = useSelector(
+    (state) => state.currencySelection
+  );
   const [exchangeRate, setExchangeRate] = useState();
   const [amount, setAmount] = useState(1);
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
-  const dispatch = useDispatch();
-  const currencyRate = useSelector((state) => state.currency.currencyRate);
-  const startCurrency = useSelector(
-    (state) => state.currencySelection.startCurrency
-  );
-  const endCurrency = useSelector(
-    (state) => state.currencySelection.endCurrency
-  );
-  const isLoading = useSelector((state) => state.currency.isLoading);
 
   useEffect(() => {
     dispatch(fetchCurrencyRate());
   }, [dispatch]);
-  
+
   useEffect(() => {
     setExchangeRate(convertCurrency(startCurrency, endCurrency, currencyRate));
   }, [startCurrency, endCurrency, currencyRate]);
@@ -44,16 +54,17 @@ function App() {
     setAmount(e.target.value);
     setAmountInStartCurrency(false);
   }, []);
+  
 
-  if (isLoading) {
-    return (
-      <div className="loader">
-        <p>Loading</p>
-      </div>
-    );
+  if (error) {
+    return <Error error={error} />;
   }
 
-  return (
+  return isLoading ? (
+    <div className="loader">
+      <p>Loading</p>
+    </div>
+  ) : (
     <>
       <HeaderComponent currency={currencyRate} />
       <main>
@@ -68,38 +79,24 @@ function App() {
             currencyRate={currencyRate}
             onChangeCurrency={(event) =>
               dispatch({
-                type: 'CHANGE_START_CURRENCY',
+                type: CHANGE_START_CURRENCY,
                 payload: event.target.value,
               })
             }
             amount={startAmount}
             onChangeAmount={handleStartAmountChange}
           />
-          <button
-            type="submit"
-            onClick={() => {
-              dispatch({
-                type: 'CHANGE_START_CURRENCY',
-                payload: endCurrency,
-              });
-              dispatch({
-                type: 'CHANGE_END_CURRENCY',
-                payload: startCurrency,
-              });
-            }}
-          >
-            <img
-              src={`${process.env.PUBLIC_URL}/image/switch.png`}
-              alt="switch"
-              style={{ height: 25 }}
-            />
-          </button>
+          <ReverseButton
+            onClickHandle={() =>
+              dispatch({ type: REVERSE_CURRENCY_SELECTION })
+            }
+          />
           <CurrencyComponent
             selectedCurrency={endCurrency}
             currencyRate={currencyRate}
             onChangeCurrency={(event) =>
               dispatch({
-                type: 'CHANGE_END_CURRENCY',
+                type: CHANGE_END_CURRENCY,
                 payload: event.target.value,
               })
             }

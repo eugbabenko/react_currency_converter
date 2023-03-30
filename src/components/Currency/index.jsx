@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 
 import './styles.scss';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import 'flag-icons/css/flag-icons.min.css';
 
 function CurrencyComponent(props) {
@@ -19,15 +17,15 @@ function CurrencyComponent(props) {
     [selectedCurrency]
   );
 
+  const currencyName = useMemo(
+    () => currencyRate.find(({ type }) => type === selectedCurrency)?.name,
+    [selectedCurrency]
+  );
+
   return (
     <div className="currency-component">
       <p className="currency-name">
-        <span className={`fi fi-${flag}`} />{' '}
-        {useMemo(
-          () =>
-            currencyRate.find(({ type }) => type === selectedCurrency)?.name,
-          [selectedCurrency]
-        )}
+        <span className={`fi fi-${flag}`} /> {currencyName}
       </p>
       <select value={selectedCurrency} onChange={onChangeCurrency}>
         {currencyRate.map(({ type }) => (
