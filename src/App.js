@@ -1,50 +1,35 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import './App.scss';
 
 import CurrencyComponent from './components/CurrencyComponent';
 import HeaderComponent from './components/HeaderComponent';
 
-import { getCurrentCurrencyRate, BASE_URL } from './API';
+import fetchCurrencyRate from './actions';
 import convertCurrency from './convertFunction';
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [startCurrency, setStartCurrency] = useState();
-  const [currencyRate, setCurrencyRate] = useState([]);
-  const [endCurrency, setEndCurrency] = useState();
   const [exchangeRate, setExchangeRate] = useState();
   const [amount, setAmount] = useState(1);
   const [amountInStartCurrency, setAmountInStartCurrency] = useState(true);
+  const dispatch = useDispatch();
+  const currencyRate = useSelector((state) => state.currency.currencyRate);
+  const startCurrency = useSelector(
+    (state) => state.currencySelection.startCurrency
+  );
+  const endCurrency = useSelector(
+    (state) => state.currencySelection.endCurrency
+  );
+  const isLoading = useSelector((state) => state.currency.isLoading);
 
   useEffect(() => {
-    setIsLoading(true);
-    getCurrentCurrencyRate(BASE_URL)
-      .then((response) => {
-        const updatedCurrencyRate = response.reduce(
-          (acc, curr) => {
-            if (!curr.cc.startsWith('X')) {
-              acc.push({ type: curr.cc, rate: curr.rate, name: curr.txt });
-            }
-            return acc;
-          },
-          [{ type: 'UAH', rate: 1, name: 'Українська гривня' }]
-        );
-        setCurrencyRate(updatedCurrencyRate);
-        setStartCurrency(updatedCurrencyRate[0].type);
-        setEndCurrency(
-          updatedCurrencyRate.find((currency) => currency.type === 'USD').type
-        );
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        alert('Error fetching currency rates:', error);
-      });
-  }, []);
-
+    dispatch(fetchCurrencyRate());
+  }, [dispatch]);
+  
   useEffect(() => {
     setExchangeRate(convertCurrency(startCurrency, endCurrency, currencyRate));
-  }, [startCurrency, endCurrency]);
+  }, [startCurrency, endCurrency, currencyRate]);
 
   const [startAmount, endAmount] = amountInStartCurrency
     ? [amount, parseFloat(amount * exchangeRate).toFixed(2)]
@@ -81,15 +66,26 @@ function App() {
           <CurrencyComponent
             selectedCurrency={startCurrency}
             currencyRate={currencyRate}
-            onChangeCurrency={(event) => setStartCurrency(event.target.value)}
+            onChangeCurrency={(event) =>
+              dispatch({
+                type: 'CHANGE_START_CURRENCY',
+                payload: event.target.value,
+              })
+            }
             amount={startAmount}
             onChangeAmount={handleStartAmountChange}
           />
           <button
             type="submit"
             onClick={() => {
-              setStartCurrency(endCurrency);
-              setEndCurrency(startCurrency);
+              dispatch({
+                type: 'CHANGE_START_CURRENCY',
+                payload: endCurrency,
+              });
+              dispatch({
+                type: 'CHANGE_END_CURRENCY',
+                payload: startCurrency,
+              });
             }}
           >
             <img
@@ -101,7 +97,12 @@ function App() {
           <CurrencyComponent
             selectedCurrency={endCurrency}
             currencyRate={currencyRate}
-            onChangeCurrency={(event) => setEndCurrency(event.target.value)}
+            onChangeCurrency={(event) =>
+              dispatch({
+                type: 'CHANGE_END_CURRENCY',
+                payload: event.target.value,
+              })
+            }
             amount={endAmount}
             onChangeAmount={handleEndAmountChange}
           />
